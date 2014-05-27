@@ -2,39 +2,44 @@
 <html lang="en" ng-app="webtorrent">
   <head>
     <meta charset="utf-8">
-    
+
     <title>WebTorrent</title>
-    
+
     <meta name="author"    content="Webtorrent.io">
     <meta name="copyright" content="Webtorrent.io 2014">
-    
+
     <link rel="stylesheet" href="assets/third-party/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/third-party/bootstrap/dist/css/bootstrap-theme.min.css">
     <link rel="stylesheet" href="assets/third-party/videojs/dist/video-js/video-js.min.css">
     <link rel='stylesheet' href='http://fonts.googleapis.com/css?family=Carrois+Gothic+SC'>
     <link rel="stylesheet" href="assets/css/app.css">
   </head>
-  
+
   <body ng-controller="RootCtrl">
     <header id='header'></header>
-    
+
     <div id='content'>
       <!-- angular view content injected here -->
       <div ng-view></div>
     </div>
-    
+
     <div id='overlay'>
-      <div class="glyphicon glyphicon-plus-sign"></div>
+      <div class="glyphicon glyphicon-download"></div>
     </div>
-    
+
     <div id="scripts">
       <!-- basic third-party dependencies -->
       <script src="assets/third-party/jquery/dist/jquery.min.js"></script>
-      <script src="assets/third-party/d3/d3.min.js"></script>
       <script src="assets/third-party/underscore/underscore.js"></script>
       <script src="assets/third-party/videojs/dist/video-js/video.js"></script>
       <script src="assets/third-party/socket.io-client/dist/socket.io.js"></script>
       <script src="assets/third-party/mousetrap/mousetrap.min.js"></script>
+      <script src="assets/third-party/bootstrap/dist/js/bootstrap.min.js"></script>
+
+      <!-- d3 dependencies -->
+      <script src="assets/third-party/d3/d3.min.js"></script>
+      <script src="assets/third-party/topojson/topojson.js"></script>
+      <script src="assets/js/third-party/datamaps.world.js"></script>
 
       <!-- angular dependencies -->
       <script src="assets/third-party/angular/angular.min.js"></script>
@@ -42,21 +47,22 @@
       <script src="assets/third-party/angular-bootstrap/ui-bootstrap.min.js"></script>
       <script src="assets/third-party/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
       <script src="assets/third-party/ng-table/ng-table.min.js"></script>
-      
+
       <!-- node-webkit initialization -->
       <script src="assets/js/gui.js"></script>
 
       <!-- angular app -->
       <script src="assets/js/app.js"></script>
       <script src="assets/js/logo.js"></script>
-      
+
       <!-- angular services -->
       <script src="assets/js/services/webtorrent.js"></script>
       <script src="assets/js/services/database.js"></script>
-      
+
       <!-- angular directives -->
       <script src="assets/js/directives/videojs.js"></script>
-      
+      <script src="assets/js/directives/peermap.js"></script>
+
       <!-- angular controllers -->
       <script src="assets/js/controllers/RootCtrl.js"></script>
       <script src="assets/js/controllers/HomeCtrl.js"></script>

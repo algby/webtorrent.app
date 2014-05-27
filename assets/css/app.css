@@ -143,6 +143,7 @@ a:active {
 }
 #content {
   padding: 0 1em;
+  margin: 0 auto;
 }
 .table-torrents tfoot {
   display: none;
@@ -159,9 +160,6 @@ a:active {
 }
 .inline {
   display: inline;
-}
-#content {
-  margin: 0 auto;
 }
 .title,
 .video-js {
@@ -321,4 +319,13 @@ a:active {
 }
 body.dragging #overlay {
   opacity: 1;
+}
+#peer-map {
+  margin: 1em auto 0;
+  width: 80%;
+  min-width: 300px;
+  height: 300px;
+}
+.nav-tabs a:hover {
+  cursor: pointer;
 }

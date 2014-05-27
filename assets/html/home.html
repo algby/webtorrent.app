@@ -7,8 +7,8 @@
   <table ng-table='torrentsTable' class='table table-bordered table-striped table-torrents'>
     <tr ng-repeat='torrent in torrents'>
       <td data-title="'Name'">
-        <a ng-if="torrent.streamable" ng-href="/torrent/{{torrent.infoHash}}/stream">{{torrent.name}}</a>
-        <span ng-if="!torrent.streamable">{{torrent.name||torrent.infoHash}}</span>
+        <a ng-if="torrent.name" ng-href="/torrent/{{torrent.infoHash}}">{{torrent.name}}</a>
+        <span ng-if="!torrent.name">{{torrent.infoHash}}</span>
       </td>
       <td data-title="'Status'">
         <progressbar style="min-width: 120px" ng-if="torrent.name" ng-class="{ 'progress-striped': true, 'active': (torrent.percentDone > 0 && torrent.percentDone < 100) }" value="torrent.percentDone"><span ng-class="{ 'percent-done': true, black: (torrent.percentDone < 30) }">{{+torrent.percentDone.toFixed(2)}}%</span></progressbar>

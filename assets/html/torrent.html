@@ -1,3 +1,38 @@
 <h3 class='title'>{{torrent.name}}</h3>
 
-TODO
+<tabset justified="true">
+  <tab>
+    <tab-heading><span class="glyphicon glyphicon-info"></span> General</tab-heading>
+    <p>General info</p>
+  </tab>
+  <tab>
+    <tab-heading><span class="glyphicon glyphicon-user"></span> Peers</tab-heading>
+    <div peermap id="peer-map"></div>
+  </tab>
+  <tab>
+    <tab-heading><span class="glyphicon glyphicon-stats"></span> Pieces</tab-heading>
+    <p>Piece info</p>
+  </tab>
+
+  <tab disabled="!torrent.streamable">
+    <tab-heading><span class="glyphicon glyphicon-play-circle"></span> Stream</tab-heading>
+
+    <div ng-if="torrent.streamable">
+      <video videojs class="video-js vjs-default-skin"></video>
+    </div>
+  </tab>
+</tabset>
+
+<!--
+
+Tabs:
+  * General
+  * Peers
+    * List
+    * Map
+  * Pieces
+    * Local bitfield/heatmap
+    * Availability bitfield/heatmap
+  *
+
+-->

@@ -27,10 +27,10 @@ cd webtorrent.app
 Install global dependencies
 
 ```
-npm install -g bower gulp nodewebkit
+npm install -g bower gulp
 ```
 
-Initialize dependencies
+Install local dependencies
 
 ```
 npm install
