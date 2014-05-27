@@ -1,21 +1,54 @@
 <h3 class='title'>{{torrent.name}}</h3>
 
 <tabset justified="true">
-  <tab>
-    <tab-heading><span class="glyphicon glyphicon-info"></span> General</tab-heading>
-    <p>General info</p>
+  <tab> <!-- General -->
+    <tab-heading><span class="glyphicon glyphicon-info-sign"></span> General</tab-heading>
+    <div class="easy-pie-chart" easypiechart options="pieChartOptions" percent="torrent.percentDone"><span>{{torrent.percentDone.toFixed(2)}}%</span></div>
   </tab>
-  <tab>
-    <tab-heading><span class="glyphicon glyphicon-user"></span> Peers</tab-heading>
-    <div peermap id="peer-map"></div>
+
+  <tab> <!-- Peers -->
+    <tab-heading>
+      <div class="dropdown">
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+          <span class="glyphicon glyphicon-user"></span> Peers <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-right">
+          <li role="presentation"><a role="menuitem" tabindex="-1" href="#" ng-click="showMap=true">Map</a></li>
+          <li role="presentation"><a role="menuitem" tabindex="-1" href="#" ng-click="showMap=false">List</a></li>
+        </ul>
+      </div>
+    </tab-heading>
+
+    <div ng-if="showMap" id="peer-map" peermap></div>
+    <div ng-if="!showMap" id="peer-list">
+      <div class='panel panel-info'>
+        <div class="panel-heading clearfix">
+          <h3 class="inline">Peers ({{peers.length}})</h3>
+        </div>
+
+        <table ng-table='tableParams' class='table table-bordered table-striped table-wire'>
+          <tr ng-repeat='wire in peers'>
+            <td data-title="'Country'">
+              {{wire.country.toUpperCase()}} <img ng-src="/assets/img/flags/{{wire.country}}.png" />
+            </td>
+            <td data-title="'IP'">{{wire.ip}}</td>
+            <td data-title="'Port'">{{wire.port}}</td>
+            <td data-title="'Downloaded'">{{wire.downloaded}}</td>
+            <td data-title="'Download Speed'">{{wire.downloadSpeed}}</td>
+            <td data-title="'Status'">{{wire.status}}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
   </tab>
-  <tab>
+
+  <tab> <!-- Pieces -->
     <tab-heading><span class="glyphicon glyphicon-stats"></span> Pieces</tab-heading>
     <p>Piece info</p>
   </tab>
 
-  <tab disabled="!torrent.streamable">
-    <tab-heading><span class="glyphicon glyphicon-play-circle"></span> Stream</tab-heading>
+  <tab disabled="!torrent.streamable"> <!-- Stream -->
+    <tab-heading><span class="glyphicon glyphicon-play"></span> Stream</tab-heading>
 
     <div ng-if="torrent.streamable">
       <video videojs class="video-js vjs-default-skin"></video>
@@ -27,9 +60,6 @@
 
 Tabs:
   * General
-  * Peers
-    * List
-    * Map
   * Pieces
     * Local bitfield/heatmap
     * Availability bitfield/heatmap

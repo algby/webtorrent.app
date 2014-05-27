@@ -5,7 +5,8 @@
 angular.module('webtorrent', [
   'ngRoute',
   'ngTable',
-  'ui.bootstrap'
+  'ui.bootstrap',
+  'easypiechart'
 ])
 
 angular.module('webtorrent').config(function ($routeProvider, $locationProvider) {

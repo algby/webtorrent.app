@@ -4,7 +4,7 @@
     <button type="button" ng-click="addTorrent()" class="btn btn-success float-right"><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
   </div>
 
-  <table ng-table='torrentsTable' class='table table-bordered table-striped table-torrents'>
+  <table ng-table='tableParams' class='table table-bordered table-striped table-torrents'>
     <tr ng-repeat='torrent in torrents'>
       <td data-title="'Name'">
         <a ng-if="torrent.name" ng-href="/torrent/{{torrent.infoHash}}">{{torrent.name}}</a>

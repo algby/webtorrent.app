@@ -10,6 +10,7 @@
                                    GENERAL
    ************************************************************************** */
 
+@import url('https://fonts.googleapis.com/css?family=Lato:300italic,700italic,300,700');
 
 body {
   position: relative;
@@ -101,10 +102,14 @@ a {
   margin: 0 auto;
 }
 
-.table-torrents {
+.table {
   tfoot {
     display: none;
   }
+}
+
+.panel {
+  margin-bottom: 1em;
 }
 
 .black { color: #000 !important; text-align: center !important; }
@@ -274,7 +279,7 @@ body.dragging #overlay {
 }
 
 #peer-map {
-  margin: 1em auto 0;
+  margin: 0 auto;
   width: 80%;
   min-width: 300px;
   height: 300px;
@@ -283,3 +288,23 @@ body.dragging #overlay {
   cursor: pointer;
 }
 
+.tab-pane {
+  padding-top: 1em;
+}
+
+.easy-pie-chart {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  text-align: center;
+  line-height: 110px;
+  font-family: Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 18px;
+  color: #fff;
+
+  canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+}

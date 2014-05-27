@@ -2,7 +2,7 @@
 angular.module('webtorrent').controller('HomeCtrl', function (
   $scope, webtorrent, ngTableParams, $modal)
 {
-  $scope.torrentsTable = new ngTableParams({}, { counts: [] })
+  $scope.tableParams = new ngTableParams({}, { counts: [] })
 
   $scope.addTorrent = function () {
     var modalInstance = $modal.open({
