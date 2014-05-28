@@ -36,7 +36,8 @@ angular.module('webtorrent').controller('TorrentCtrl', function (
           peer.downloadSpeed = wire.downloadSpeed
 
           if (!peer.complete) {
-            peer.complete = isComplete(peer.pieces)
+            peer.pieces = wire.pieces
+            peer.complete = isComplete(wire.pieces)
           }
         } else {
           var parts = wire.addr.split(':')

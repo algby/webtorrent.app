@@ -3,13 +3,12 @@ var gulpGrunt = require('gulp-grunt')
 var less      = require('gulp-less')
 var minifyCSS = require('gulp-minify-css')
 var clean     = require('gulp-clean')
-var rename    = require('gulp-rename')
-var replace   = require('gulp-replace')
-var concat    = require('gulp-concat')
 var imagemin  = require('gulp-imagemin')
-var debug     = require('gulp-debug')
 var jshint    = require('gulp-jshint')
 var shell     = require('gulp-shell')
+var plist     = require('plist')
+var fs        = require('fs')
+var extend    = require('extend.js')
 
 /* ---------------------------------------------------------------------
  * Paths and globs used in tasks
@@ -66,7 +65,7 @@ gulpGrunt(gulp, { base: './' })
 gulp.task('default', [ 'compile' ])
 
 // depends on this task existing in the Gruntfile
-gulp.task('nodewebkit', [ 'grunt-nodewebkit', 'ffmpeg' ])
+gulp.task('nodewebkit', [ 'grunt-nodewebkit', 'ffmpeg', 'add-protocol-handlers' ])
 
 gulp.task('compile', [
   'fonts',
@@ -168,6 +167,23 @@ gulp.task('ffmpeg', [ 'grunt-nodewebkit' ], shell.task([
   'cp -f ' + 'lib/linux32/libffmpegsumo.so' + ' "' + paths.build.linux32 + '"',
   'cp -f ' + 'lib/linux64/libffmpegsumo.so' + ' "' + paths.build.linux64 + '"'
 ]))
+
+gulp.task('add-protocol-handlers', [ 'grunt-nodewebkit' ], function () {
+  var filename = paths.build.root + 'mac/webtorrent.app/Contents/Info.plist'
+  var parsed = plist.parse(fs.readFileSync(filename, 'utf8'))
+  var extended = extend(parsed, {
+    CFBundleURLTypes: [
+      {
+        CFBundleURLName: 'magnet URI',
+        CFBundleURLSchemes: [
+          'magnet'
+        ]
+      }
+    ]
+  })
+
+  fs.writeFileSync(filename, plist.build(extended))
+})
 
 // temporary workaround hack for nodewebkit
 // http://stackoverflow.com/questions/22787613/running-nodewebkit-app-fails-with-invalid-package-json-field-main-is-required
