@@ -4,7 +4,7 @@ angular.module('webtorrent').controller('RootCtrl', function (
 {
   var fs = require('fs')
 
-  webtorrent.add('JH2TF3UY4IIOMTJ7SCNAZIBZ3IFSX45H')
+  //webtorrent.add('JH2TF3UY4IIOMTJ7SCNAZIBZ3IFSX45H')
   $rootScope.safeApply = function (fn) {
     var phase = this.$root.$$phase
     if (phase == '$apply' || phase == '$digest') {

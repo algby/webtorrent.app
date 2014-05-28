@@ -7,16 +7,16 @@
     <div class="form-group">
       <label for="torrentId">Torrent Id</label>
       <input type="text" class="form-control" id="torrentId" placeholder="Magnet URI, infohash, or .torrent file URL" ng-model="torrent.id">
-      <p class="help-block">Ex. JH2TF3UY4IIOMTJ7SCNAZIBZ3IFSX45H</p>
+      <p class="help-block">Ex. 455a2295b558ac64e0348fb0c61f433224484908</p>
     </div>
 
-    <!-- TODO: support torrent file upload
     <p class="help-block">OR</p>
 
     <div class="form-group">
       <label for="torrentFile">Torrent File</label>
-      <input type="file" id="torrentFile">
-    </div>-->
+      <input type="file" id="torrentFile" onchange="angular.element(this).scope().torrentFileChanged(this)">
+      <button type="reset" id="fileReset" style="display: none">
+    </div>
   </form>
 </div>
 

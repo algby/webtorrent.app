@@ -67,11 +67,10 @@
         <h3>Piece Availability</h3> (across {{peers.length}} peers)
       </div>
 
-      <div class="pieces-bitfield pieces-bitfield-large">
-        <div class="piece" ng-style="{ width: (102.0 / torrent.availability.length) + '%', left: (100 * $index / torrent.availability.length) + '%', background: 'hsl(' + (256 - (256 - 120) * piece.relative) + ', 100%, 79%)' }" ng-repeat="piece in torrent.availability track by $index"></div>
+      <div class="pieces-bitfield pieces-bitfield-large pieces-bitfield-availability">
+        <div class="piece" ng-style="{ width: (102.0 / torrent.availability.length) + '%', left: (100 * $index / torrent.availability.length) + '%', background: 'hsl(' + (256 - (256 - 120) * piece.relative) + ', 100%, 79%)' }" ng-repeat="piece in torrent.availability track by $index" tooltip-placement="bottom" tooltip="Piece {{$index}}: {{piece.absolute}} available"></div>
       </div>
     </div>
-
   </tab>
 
   <tab disabled="!torrent.streamable"> <!-- Stream -->
