@@ -6,7 +6,8 @@ angular.module('webtorrent', [
   'ngRoute',
   'ngTable',
   'ui.bootstrap',
-  'easypiechart'
+  'easypiechart',
+  'toggle-switch'
 ])
 
 angular.module('webtorrent').config(function ($routeProvider, $locationProvider) {

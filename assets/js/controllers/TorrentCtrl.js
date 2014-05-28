@@ -4,10 +4,12 @@ angular.module('webtorrent').controller('TorrentCtrl', function (
 {
   var torrent = $scope.torrent = $scope.torrentMap[$routeParams.infoHash]
   var geoip = require('geoip-lite')
-  var peers = $scope.peers = {}
+  var peers = {}
+  $scope.peers = []
 
   // default to list view for peers instead of map view
   $scope.showMap = false
+  torrent.selectedStrategy = (torrent.strategy === 'sequential')
 
   webtorrent.on('torrent:update', updatePeers)
   $scope.$on('$destroy', function () {
@@ -78,5 +80,11 @@ angular.module('webtorrent').controller('TorrentCtrl', function (
   $scope.pieChartOptions = {
     barColor: '#0086ca'
   }
+
+  $scope.$watch('torrent.selectedStrategy', function (newStrategy, oldStrategy) {
+    if (newStrategy !== oldStrategy) {
+      webtorrent.setStrategy(torrent.infoHash, newStrategy ? 'sequential' : 'rarest')
+    }
+  })
 })
 

@@ -55,6 +55,14 @@ function Client () {
   setTimeout(tryConnect, 1000)
 
   self.socketP.then(function (socket) {
+    socket.on('error', function (error) {
+      console.log('webtorrent error', error.message)
+    })
+
+    socket.on('log', function (log) {
+      console.log('webtorrent log', log.message)
+    })
+
     socket.on('addTorrent', function (torrent) {
       self.emit('addTorrent', torrent)
     })
@@ -73,6 +81,15 @@ Client.prototype.add = function (torrentId, opts) {
 
   self.socketP.then(function (socket) {
     socket.emit('addTorrent', { torrentId: torrentId, opts: opts })
+  })
+}
+
+Client.prototype.setStrategy = function (infoHash, strategy) {
+  var self = this
+
+  console.log('setStrategy', infoHash, strategy)
+  self.socketP.then(function (socket) {
+    socket.emit('torrent:setStrategy', { infoHash: infoHash, strategy: strategy })
   })
 }
 

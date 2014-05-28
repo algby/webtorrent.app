@@ -33,6 +33,7 @@
             </td>
             <td data-title="'IP'">{{wire.ip}}</td>
             <td data-title="'Port'">{{wire.port}}</td>
+            <td data-title="'Client'">TODO</td>
             <td data-title="'Downloaded'">{{wire.downloaded}}</td>
             <td data-title="'Download Speed'">{{wire.downloadSpeed}}</td>
             <td data-title="'Pieces'">
@@ -52,13 +53,16 @@
   <tab> <!-- Pieces -->
     <tab-heading><span class="glyphicon glyphicon-stats"></span> Pieces</tab-heading>
     <div class='panel panel-info'>
-      <div class="panel-heading">
+      <div class="panel-heading clearfix">
         <h3>Pieces Downloaded</h3> ({{torrent.pieces.length}} total)
+        <toggle-switch model="torrent.selectedStrategy" class="switch-warning switch-small float-right"
+          knob-label="Strategy" on-label="Sequential" off-label="Rarest">
+        </toggle-switch>
       </div>
 
       <div ng-if="torrent.done" class="pieces-bitfield pieces-bitfield-complete pieces-bitfield-large"></div>
       <div ng-if="!torrent.done" class="pieces-bitfield pieces-bitfield-large">
-        <div class="piece" ng-style="{ width: (102.0 / torrent.pieces.length) + '%', left: (100 * $index / torrent.pieces.length) + '%', opacity: piece / 255 }" ng-repeat="piece in torrent.pieces track by $index"></div>
+        <div class="piece" ng-style="{ width: (102.0 / torrent.pieces.length) + '%', left: (100 * $index / torrent.pieces.length) + '%', opacity: piece / 255 }" ng-repeat="piece in torrent.pieces track by $index" tooltip-placement="bottom" tooltip="Piece {{$index}}: {{+(100 * piece / 255).toFixed(0)}}% downloaded"></div>
       </div>
     </div>
 

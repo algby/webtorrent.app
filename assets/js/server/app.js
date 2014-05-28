@@ -25,6 +25,21 @@ app.io.route('addTorrent', function (req) {
   client.add(req.data.torrentId, req.data.opts)
 })
 
+app.io.route('torrent:setStrategy', function (req) {
+  var torrent = client.get(req.data.infoHash)
+  if (torrent) {
+    var oldStrategy = torrent.strategy
+    torrent.strategy = req.data.strategy
+    app.io.broadcast('log', { message: 'torrent:setStrategy ' + torrent.strategy })
+  } else {
+    app.io.broadcast('error', { message: 'torrent:setStrategy unable to find torrent ' + req.data.infoHash })
+  }
+})
+
+client.on('error', function (error) {
+  app.io.broadcast('error', { message: error.toString() })
+})
+
 client.on('addTorrent', function (torrent) {
   var started = Date.now()
   app.io.broadcast('addTorrent', { infoHash: torrent.infoHash })
@@ -88,7 +103,7 @@ client.on('addTorrent', function (torrent) {
         })
       }
 
-      app.io.broadcast('torrent:update', {
+      app.io.broadcast('torrent:update', unicodeWorkaround({
         infoHash: torrent.infoHash,
         name: torrent.name,
         runtime: runtime,
@@ -113,6 +128,7 @@ client.on('addTorrent', function (torrent) {
         hotswaps: hotswaps,
         pieces: toArray(torrent.storage.bitfield.buffer),
         availability: availability,
+        strategy: torrent.strategy || 'sequential',
         wires: wires.map(function (wire) {
           return {
             pieces: toArray(wire.peerPieces.buffer),
@@ -121,10 +137,12 @@ client.on('addTorrent', function (torrent) {
             downloadedRaw: wire.downloaded,
             downloadSpeed: bytes(wire.downloadSpeed()),
             downloadSpeedRaw: wire.downloadSpeed(),
-            choked: wire.peerChoking
+            choked: wire.peerChoking,
+            // TODO: map peerId to client and version
+            peerId: wire.peerId.toString()
           }
         })
-      })
+      }))
     }
 
     var updateId = setInterval(update, 250)
@@ -137,7 +155,26 @@ client.on('addTorrent', function (torrent) {
   })
 })
 
-function toArray(buffer) {
+function toArray (buffer) {
   return Array.apply([], buffer)
+}
+
+// Workaround for socket.io unicode issue where sending unescapable characters can cause
+// webkit to close the connection. This solution ensures that we'll never send an invalid
+// utf8 character over the websocket at the expense of possibly introducing malformed
+// strings.
+// See http://blog.fgribreau.com/2012/05/how-to-fix-could-not-decode-text-frame.html for
+// a good breakdown of the problem and possible workarounds.
+function unicodeWorkaround (obj) {
+  var escapable = /[\x00-\x1f\ud800-\udfff\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufff0-\uffff]/g
+
+  function filterUnicode (quoted) {
+    escapable.lastIndex = 0
+    if (!escapable.test(quoted)) return quoted
+
+    return quoted.replace(escapable, function () { return '' })
+  }
+
+  return JSON.parse(filterUnicode(JSON.stringify(obj)))
 }
 
