@@ -13,6 +13,7 @@ var numeral    = require('numeral')
 var address    = require('network-address')
 var moment     = require('moment')
 var express    = require('express.io')
+var peerid     = require('bittorrent-peerid')
 
 var app = express()
 app.http().io()
@@ -138,8 +139,8 @@ client.on('addTorrent', function (torrent) {
             downloadSpeed: bytes(wire.downloadSpeed()),
             downloadSpeedRaw: wire.downloadSpeed(),
             choked: wire.peerChoking,
-            // TODO: map peerId to client and version
-            peerId: wire.peerId.toString()
+            peerId: wire.peerId.toString('hex'),
+            client: peerid(wire.peerId).client
           }
         })
       }))
