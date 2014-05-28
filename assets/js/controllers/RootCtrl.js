@@ -45,7 +45,12 @@ angular.module('webtorrent').controller('RootCtrl', function (
     if (!torrent) return addTorrent(data)
 
     $rootScope.safeApply(function () {
-      $rootScope.torrentMap[data.infoHash] = $rootScope.torrents[$rootScope.torrents.indexOf(torrent)] = _.extend(torrent, data)
+      var merged = _.extend(torrent, data)
+      merged.pieces = torrent.pieces
+      data.pieces.forEach(function (piece, index) {
+        merged.pieces[index] = piece
+      })
+      $rootScope.torrentMap[data.infoHash] = $rootScope.torrents[$rootScope.torrents.indexOf(torrent)] = merged
     })
   })
 

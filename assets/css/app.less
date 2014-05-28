@@ -116,7 +116,6 @@ a {
 .black { color: #000 !important; text-align: center !important; }
 .percent-done { margin-left: .5em; }
 .float-right { float: right; }
-.inline { display: inline; }
 
 .title, .video-js {
   text-align: center;
@@ -309,3 +308,33 @@ body.dragging #overlay {
     left: 0;
   }
 }
+
+.pieces-bitfield {
+  position: relative;
+  width: 100%;
+  height: 1em;
+  background: #fff;
+  border: 1px solid #bbb;
+
+  .piece {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: #0086ca;
+  }
+}
+
+.pieces-bitfield-complete {
+  background: #0086ca;
+}
+
+.pieces-bitfield-large {
+  height: 48px;
+}
+
+.panel-heading h3 {
+  margin: 0;
+  display: inline;
+}
+

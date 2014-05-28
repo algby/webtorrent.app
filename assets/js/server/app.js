@@ -76,6 +76,18 @@ client.on('addTorrent', function (torrent) {
       var estimatedSecondsRemaining = Math.max(0, torrent.length - swarm.downloaded) / (speed > 0 ? speed : -1)
       var estimate = moment.duration(estimatedSecondsRemaining, 'seconds').humanize()
 
+      var availability = torrent.rarityMap && torrent.rarityMap.pieces
+      if (availability) {
+        var maxAvailability = availability.reduce(function (max, piece) { return Math.max(max, piece) }, 1)
+
+        availability = availability.map(function (piece) {
+          return {
+            relative: piece / maxAvailability,
+            absolute: piece
+          }
+        })
+      }
+
       app.io.broadcast('torrent:update', {
         infoHash: torrent.infoHash,
         name: torrent.name,
@@ -99,8 +111,11 @@ client.on('addTorrent', function (torrent) {
         etaRaw: estimatedSecondsRemaining,
         peerQueueSize: swarm.numQueued,
         hotswaps: hotswaps,
+        pieces: toArray(torrent.storage.bitfield.buffer),
+        availability: availability,
         wires: wires.map(function (wire) {
           return {
+            pieces: toArray(wire.peerPieces.buffer),
             addr: wire.remoteAddress,
             downloaded: bytes(wire.downloaded),
             downloadedRaw: wire.downloaded,
@@ -112,7 +127,7 @@ client.on('addTorrent', function (torrent) {
       })
     }
 
-    var updateId = setInterval(update, 100)
+    var updateId = setInterval(update, 250)
     update()
 
     torrent.once('done', function () {
@@ -121,4 +136,8 @@ client.on('addTorrent', function (torrent) {
     })
   })
 })
+
+function toArray(buffer) {
+  return Array.apply([], buffer)
+}
 

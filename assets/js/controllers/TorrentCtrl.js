@@ -16,6 +16,8 @@ angular.module('webtorrent').controller('TorrentCtrl', function (
 
   function updatePeers (t) {
     if (t.infoHash === torrent.infoHash) {
+      torrent.pieces = Array.apply([], t.pieces)
+
       var max = t.wires.reduce(function (max, wire) { return Math.max(max, wire.downloadedRaw) }, 0)
       var active = t.wires.map(function (wire) { return wire.addr })
 
@@ -24,10 +26,18 @@ angular.module('webtorrent').controller('TorrentCtrl', function (
         var radius = 50 * (wire.downloadedRaw / max)
         if (radius < 0.0001) return
 
+        function isComplete (pieces) {
+          return (typeof _.find(pieces, function (piece) { return !piece }) === 'undefined')
+        }
+
         if (peer) {
           peer.radius = radius
           peer.downloaded = wire.downloaded
           peer.downloadSpeed = wire.downloadSpeed
+
+          if (!peer.complete) {
+            peer.complete = isComplete(peer.pieces)
+          }
         } else {
           var parts = wire.addr.split(':')
           var location = geoip.lookup(parts[0])
@@ -39,7 +49,9 @@ angular.module('webtorrent').controller('TorrentCtrl', function (
             radius: radius,
             ip: parts[0],
             port: parts[1],
-            status: (wire.choked ? 'Choked' : 'Connected')
+            status: (wire.choked ? 'Choked' : 'Connected'),
+            pieces: wire.pieces,
+            complete: isComplete(wire.pieces)
           }
 
           if (location.city && location.region) {

@@ -22,8 +22,8 @@
     <div ng-if="showMap" id="peer-map" peermap></div>
     <div ng-if="!showMap" id="peer-list">
       <div class='panel panel-info'>
-        <div class="panel-heading clearfix">
-          <h3 class="inline">Peers ({{peers.length}})</h3>
+        <div class="panel-heading">
+          <h3>Peers</h3> ({{peers.length}})
         </div>
 
         <table ng-table='tableParams' class='table table-bordered table-striped table-wire'>
@@ -35,6 +35,13 @@
             <td data-title="'Port'">{{wire.port}}</td>
             <td data-title="'Downloaded'">{{wire.downloaded}}</td>
             <td data-title="'Download Speed'">{{wire.downloadSpeed}}</td>
+            <td data-title="'Pieces'">
+              <div ng-if="wire.complete" class="pieces-bitfield pieces-bitfield-complete"></div>
+
+              <div ng-if="!wire.complete" class="pieces-bitfield">
+                <div class="piece" ng-style="{ width: (102.0 / wire.pieces.length) + '%', left: (100 * $index / wire.pieces.length) + '%', opacity: piece / 255 }" ng-repeat="piece in wire.pieces track by $index"></div>
+              </div>
+            </td>
             <td data-title="'Status'">{{wire.status}}</td>
           </tr>
         </table>
@@ -44,7 +51,27 @@
 
   <tab> <!-- Pieces -->
     <tab-heading><span class="glyphicon glyphicon-stats"></span> Pieces</tab-heading>
-    <p>Piece info</p>
+    <div class='panel panel-info'>
+      <div class="panel-heading">
+        <h3>Pieces Downloaded</h3> ({{torrent.pieces.length}} total)
+      </div>
+
+      <div ng-if="torrent.done" class="pieces-bitfield pieces-bitfield-complete pieces-bitfield-large"></div>
+      <div ng-if="!torrent.done" class="pieces-bitfield pieces-bitfield-large">
+        <div class="piece" ng-style="{ width: (102.0 / torrent.pieces.length) + '%', left: (100 * $index / torrent.pieces.length) + '%', opacity: piece / 255 }" ng-repeat="piece in torrent.pieces track by $index"></div>
+      </div>
+    </div>
+
+    <div class='panel panel-info' ng-if="torrent.availability">
+      <div class="panel-heading">
+        <h3>Piece Availability</h3> (across {{peers.length}} peers)
+      </div>
+
+      <div class="pieces-bitfield pieces-bitfield-large">
+        <div class="piece" ng-style="{ width: (102.0 / torrent.availability.length) + '%', left: (100 * $index / torrent.availability.length) + '%', background: 'hsl(' + (256 - (256 - 120) * piece.relative) + ', 100%, 79%)' }" ng-repeat="piece in torrent.availability track by $index"></div>
+      </div>
+    </div>
+
   </tab>
 
   <tab disabled="!torrent.streamable"> <!-- Stream -->
@@ -56,13 +83,3 @@
   </tab>
 </tabset>
 
-<!--
-
-Tabs:
-  * General
-  * Pieces
-    * Local bitfield/heatmap
-    * Availability bitfield/heatmap
-  *
-
--->
