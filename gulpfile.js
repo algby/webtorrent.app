@@ -75,8 +75,7 @@ gulp.task('compile', [
   'templates',
   'index',
   'node-dependencies',
-  'bower-dependencies',
-  'nodewebkit-workaround'
+  'bower-dependencies'
 ])
 
 gulp.task('clean', function () {
@@ -121,7 +120,7 @@ gulp.task('node-dependencies', shell.task(nodeModuleTasks))
 //    .pipe(gulp.dest(paths.dest.root))
 //})
 
-gulp.task('bower-dependencies', [ 'nodewebkit-workaround' ], function () {
+gulp.task('bower-dependencies', function () {
   gulp.src(paths.src.bowerDependencies)
     .pipe(gulp.dest(paths.dest.bowerDependenciesRoot))
 })
@@ -184,11 +183,4 @@ gulp.task('add-protocol-handlers', [ 'grunt-nodewebkit' ], function () {
 
   fs.writeFileSync(filename, plist.build(extended))
 })
-
-// temporary workaround hack for nodewebkit
-// http://stackoverflow.com/questions/22787613/running-nodewebkit-app-fails-with-invalid-package-json-field-main-is-required
-// https://github.com/shama/nodewebkit/issues/28
-gulp.task('nodewebkit-workaround', shell.task([
-  'mv -f node_modules/nodewebkit/package.json node_modules/nodewebkit/_package.json &> /dev/null || echo',
-]))
 
