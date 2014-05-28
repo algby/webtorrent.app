@@ -73,7 +73,7 @@ angular.module('webtorrent').controller('RootCtrl', function (
     return false
   }
 
-  window.ondragend = function ()  {
+  window.ondragend = window.ondragexit = function ()  {
     // TODO: this isn't being triggered
     $('body').removeClass('dragging')
     return false
