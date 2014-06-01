@@ -368,7 +368,12 @@ body.dragging #overlay {
 .pieces-bitfield-large {
   height: 48px;
 }
-.panel-heading h3 {
+.panel-heading h2,
+.panel-heading h3,
+.panel-heading h4 {
   margin: 0;
   display: inline;
+}
+.container-fluid {
+  width: 100%;
 }

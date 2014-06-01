@@ -36,20 +36,43 @@ angular.module('webtorrent').controller('RootCtrl', function (
     var torrent = $rootScope.torrentMap[data.infoHash]
 
     $rootScope.safeApply(function () {
+      torrent.status = 'metadata'
       torrent.numPeers = data.numPeers
     })
   })
+
+  webtorrent.on('torrent:verifying:update', function (data) {
+    var torrent = $rootScope.torrentMap[data.infoHash]
+    //console.log('verifying', data.percentDone)
+
+    $rootScope.safeApply(function () {
+      torrent.status = 'verifying'
+      torrent.percentDone = data.percentDone
+      torrent.percentVerified = data.percentVerified
+    })
+  })
+
 
   webtorrent.on('torrent:update', function (data) {
     var torrent = $rootScope.torrentMap[data.infoHash]
     if (!torrent) return addTorrent(data)
 
+    var merged = _.extend(torrent, data)
+
+    if ('percentDone' in data) {
+      merged.status = (data.done || data.percentDone >= 100 ? 'complete' : 'downloading')
+      if (data.pieces) {
+
+        merged.pieces = torrent.pieces
+        data.pieces.forEach(function (piece, index) {
+          merged.pieces[index] = piece
+        })
+      }
+    } else {
+      merged.status = 'metadata'
+    }
+
     $rootScope.safeApply(function () {
-      var merged = _.extend(torrent, data)
-      merged.pieces = torrent.pieces
-      data.pieces.forEach(function (piece, index) {
-        merged.pieces[index] = piece
-      })
       $rootScope.torrentMap[data.infoHash] = $rootScope.torrents[$rootScope.torrents.indexOf(torrent)] = merged
     })
   })
@@ -58,8 +81,8 @@ angular.module('webtorrent').controller('RootCtrl', function (
    * Handle drag & drop of .torrent files onto app window
    */
   function isValidTorrent(e) {
-    var file = e.dataTransfer.files[0]
-    if (file.name.indexOf(".torrent") !== -1) {
+    var file = e && e.dataTransfer && e.dataTransfer.files[0]
+    if (file && file.name && file.name.indexOf(".torrent") !== -1) {
       return file
     } else {
       return null

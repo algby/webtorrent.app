@@ -54,106 +54,129 @@ client.on('addTorrent', function (torrent) {
 
   torrent.swarm.on('wire', updateMetadata)
 
-  client.on('torrent', function (t) {
-    if (torrent !== t) return
+  torrent.once('metadata', function () {
     torrent.swarm.removeListener('wire', updateMetadata)
 
-    var href = 'http://' + address() + ':' + client.server.address().port + '/'
-    var swarm = torrent.swarm
-    var wires = swarm.wires
-    var hotswaps = 0
-
-    torrent.on('hotswap', function () {
-      hotswaps++
-    })
-
-    function active (wire) {
-      return !wire.peerChoking
-    }
-
-    function bytes (num) {
-      return numeral(num).format('0.0b')
-    }
-
-    function getRuntime () {
-      return Math.floor((Date.now() - started) / 1000)
-    }
-
-    function update (done) {
-      if (torrent._destroyed) {
-        clearInterval(updateId)
-        return
-      }
-
-      var unchoked = swarm.wires.filter(active)
-      var runtime = getRuntime()
-      var speed = swarm.downloadSpeed()
-      var percentDone = Math.max(0, Math.min(100, 100 * swarm.downloaded / torrent.length))
-      var estimatedSecondsRemaining = Math.max(0, torrent.length - swarm.downloaded) / (speed > 0 ? speed : -1)
-      var estimate = moment.duration(estimatedSecondsRemaining, 'seconds').humanize()
-
-      var availability = torrent.rarityMap && torrent.rarityMap.pieces
-      if (availability) {
-        var maxAvailability = availability.reduce(function (max, piece) { return Math.max(max, piece) }, 1)
-
-        availability = availability.map(function (piece) {
-          return {
-            relative: piece / maxAvailability,
-            absolute: piece
-          }
-        })
-      }
-
-      app.io.broadcast('torrent:update', unicodeWorkaround({
-        infoHash: torrent.infoHash,
-        name: torrent.name,
-        runtime: runtime,
-        done: !!done,
-        streamable: true,
-        streamUrl: href,
-        mime: client.mime,
-        percentDone: percentDone,
-        downloadSpeed: bytes(speed) + '/s',
-        downloadSpeedRaw: speed,
-        numUnchoked: unchoked.length,
-        numPeers: wires.length,
-        downloaded: bytes(swarm.downloaded),
-        downloadedRaw: swarm.downloaded,
-        length: bytes(torrent.length),
-        lengthRaw: torrent.length,
-        uploaded: bytes(swarm.uploaded),
-        uploadedRaw: swarm.uploaded,
-        eta: estimate,
-        etaRaw: estimatedSecondsRemaining,
-        peerQueueSize: swarm.numQueued,
-        hotswaps: hotswaps,
-        pieces: toArray(torrent.storage.bitfield.buffer),
-        availability: availability,
-        strategy: torrent.strategy || 'sequential',
-        wires: wires.map(function (wire) {
-          return {
-            pieces: toArray(wire.peerPieces.buffer),
-            addr: wire.remoteAddress,
-            downloaded: bytes(wire.downloaded),
-            downloadedRaw: wire.downloaded,
-            downloadSpeed: bytes(wire.downloadSpeed()),
-            downloadSpeedRaw: wire.downloadSpeed(),
-            choked: wire.peerChoking,
-            peerId: wire.peerId.toString('hex'),
-            client: peerid(wire.peerId).client
-          }
-        })
-      }))
-    }
-
-    var updateId = setInterval(update, 250)
-    update()
-
-    torrent.once('done', function () {
-      clearInterval(updateId)
-      update(true)
+    app.io.broadcast('torrent:update', {
+      infoHash: torrent.infoHash,
+      name: torrent.name,
+      length: bytes(torrent.length),
+      lengthRaw: torrent.length,
     })
   })
+
+  torrent.on('verifying', function (data) {
+    app.io.broadcast('torrent:verifying:update', {
+      infoHash: torrent.infoHash,
+      percentDone: data.percentDone,
+      percentVerified: data.percentVerified
+    })
+  })
+
+  torrent.once('ready', function () {
+    if (!done) {
+      updateId = setInterval(update, 250)
+      update()
+    }
+  })
+
+  torrent.once('done', function () {
+    app.io.broadcast('log', { message: 'torrent:done ' + torrent.name + ' (' + torrent.infoHash + ')' })
+
+    done = true
+    clearInterval(updateId)
+    update(true)
+  })
+
+  var href = 'http://' + address() + ':' + client.server.address().port + '/'
+  var swarm = torrent.swarm
+  var wires = swarm.wires
+  var hotswaps = 0
+  var updateId
+  var done = false
+
+  torrent.on('hotswap', function () {
+    hotswaps++
+  })
+
+  function active (wire) {
+    return !wire.peerChoking
+  }
+
+  function bytes (num) {
+    return numeral(num).format('0.0b')
+  }
+
+  function getRuntime () {
+    return Math.floor((Date.now() - started) / 1000)
+  }
+
+  function update (done) {
+    if (torrent._destroyed) {
+      clearInterval(updateId)
+      return
+    }
+
+    var unchoked = swarm.wires.filter(active)
+    var runtime = getRuntime()
+    var speed = swarm.downloadSpeed()
+    var percentDone = Math.max(0, Math.min(100, 100 * swarm.downloaded / torrent.length))
+    var estimatedSecondsRemaining = (done ? 0 : Math.max(0, torrent.length - swarm.downloaded) / (speed > 0 ? speed : -1))
+    var estimate = (done ? '' : moment.duration(estimatedSecondsRemaining, 'seconds').humanize())
+
+    var availability = torrent.rarityMap && torrent.rarityMap.pieces
+    if (availability) {
+      var maxAvailability = availability.reduce(function (max, piece) { return Math.max(max, piece) }, 1)
+
+      availability = availability.map(function (piece) {
+        return {
+          relative: piece / maxAvailability,
+          absolute: piece
+        }
+      })
+    }
+
+    app.io.broadcast('torrent:update', unicodeWorkaround({
+      infoHash: torrent.infoHash,
+      name: torrent.name,
+      runtime: runtime,
+      done: !!done,
+      streamable: true, // TODO: infer streamable by mimetype
+      streamUrl: href,
+      mime: client.mime,
+      percentDone: percentDone,
+      downloadSpeed: bytes(speed) + '/s',
+      downloadSpeedRaw: speed,
+      numUnchoked: unchoked.length,
+      numPeers: wires.length,
+      downloaded: bytes(swarm.downloaded),
+      downloadedRaw: swarm.downloaded,
+      length: bytes(torrent.length),
+      lengthRaw: torrent.length,
+      uploaded: bytes(swarm.uploaded),
+      uploadedRaw: swarm.uploaded,
+      eta: estimate,
+      etaRaw: estimatedSecondsRemaining,
+      peerQueueSize: swarm.numQueued,
+      hotswaps: hotswaps,
+      pieces: toArray(torrent.storage.bitfield.buffer), // TODO: more compact representation
+      availability: availability,
+      strategy: torrent.strategy || 'sequential',
+      wires: wires.map(function (wire) {
+        return {
+          pieces: toArray(wire.peerPieces.buffer),
+          addr: wire.remoteAddress,
+          downloaded: bytes(wire.downloaded),
+          downloadedRaw: wire.downloaded,
+          downloadSpeed: bytes(wire.downloadSpeed()),
+          downloadSpeedRaw: wire.downloadSpeed(),
+          choked: wire.peerChoking,
+          peerId: wire.peerId.toString('hex'),
+          client: peerid(wire.peerId).client
+        }
+      })
+    }))
+  }
 })
 
 function toArray (buffer) {

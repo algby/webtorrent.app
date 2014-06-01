@@ -11,8 +11,12 @@
         <span ng-if="!torrent.name">{{torrent.infoHash}}</span>
       </td>
       <td data-title="'Status'">
-        <progressbar style="min-width: 120px" ng-if="torrent.name" ng-class="{ 'progress-striped': true, 'active': (torrent.percentDone > 0 && torrent.percentDone < 100) }" value="torrent.percentDone"><span ng-class="{ 'percent-done': true, black: (torrent.percentDone < 30) }">{{+torrent.percentDone.toFixed(2)}}%</span></progressbar>
-        <span ng-if="!torrent.name">Downloading metadata...</span>
+        <div ng-switch="torrent.status">
+          <div ng-switch-when="downloading"><progressbar style="min-width: 120px" ng-class="{ 'progress-striped': true, 'active': (torrent.percentDone > 0 && torrent.percentDone < 100) }" value="torrent.percentDone"><span ng-class="{ 'percent-done': true, black: (torrent.percentDone < 30) }">{{+torrent.percentDone.toFixed(2)}}%</span></progressbar></div>
+          <span ng-switch-when="metadata">Downloading metadata...</span>
+          <span ng-switch-when="verifying">Verifying data {{torrent.percentDone.toFixed(2)}}%</span>
+          <span ng-switch-when="complete">Complete</span>
+        </div>
       </td>
       <td data-title="'ETA'">{{torrent.eta}}</td>
       <td data-title="'Size'">{{torrent.length}}</td>

@@ -69,6 +69,9 @@ function Client () {
     socket.on('torrent:metadata:update', function (torrent) {
       self.emit('torrent:metadata:update', torrent)
     })
+    socket.on('torrent:verifying:update', function (torrent) {
+      self.emit('torrent:verifying:update', torrent)
+    })
     socket.on('torrent:update', function (torrent) {
       self.emit('torrent:update', torrent)
     })
@@ -86,8 +89,8 @@ Client.prototype.add = function (torrentId, opts) {
 
 Client.prototype.setStrategy = function (infoHash, strategy) {
   var self = this
-
   console.log('setStrategy', infoHash, strategy)
+
   self.socketP.then(function (socket) {
     socket.emit('torrent:setStrategy', { infoHash: infoHash, strategy: strategy })
   })
