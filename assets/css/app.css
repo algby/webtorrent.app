@@ -155,10 +155,10 @@ a:active {
 }
 .black {
   color: #000 !important;
-  text-align: center !important;
 }
 .percent-done {
-  margin-left: .5em;
+  margin: 0 .5em;
+  white-space: nowrap;
 }
 .float-right {
   float: right;

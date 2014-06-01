@@ -41,6 +41,10 @@ client.on('error', function (error) {
   app.io.broadcast('error', { message: error.toString() })
 })
 
+process.on('uncaughtException', function (err) {
+  app.io.broadcast('error', { message: 'unhandled exception ' + err.message + ' \n' + JSON.stringify(err.stack) })
+})
+
 client.on('addTorrent', function (torrent) {
   var started = Date.now()
   app.io.broadcast('addTorrent', { infoHash: torrent.infoHash })
@@ -81,7 +85,7 @@ client.on('addTorrent', function (torrent) {
   })
 
   torrent.once('done', function () {
-    app.io.broadcast('log', { message: 'torrent:done ' + torrent.name + ' (' + torrent.infoHash + ')' })
+    app.io.broadcast('log', { message: 'torrent DONE ' + torrent.name + ' (' + torrent.infoHash + ')' })
 
     done = true
     clearInterval(updateId)
@@ -120,7 +124,9 @@ client.on('addTorrent', function (torrent) {
     var unchoked = swarm.wires.filter(active)
     var runtime = getRuntime()
     var speed = swarm.downloadSpeed()
-    var percentDone = Math.max(0, Math.min(100, 100 * swarm.downloaded / torrent.length))
+
+    // TODO: percentDone should take into account initial pieces for resumed downloads
+    var percentDone = (done ? 100 : Math.max(0, Math.min(100, 100 * swarm.downloaded / torrent.length)))
     var estimatedSecondsRemaining = (done ? 0 : Math.max(0, torrent.length - swarm.downloaded) / (speed > 0 ? speed : -1))
     var estimate = (done ? '' : moment.duration(estimatedSecondsRemaining, 'seconds').humanize())
 
@@ -148,7 +154,7 @@ client.on('addTorrent', function (torrent) {
       downloadSpeed: bytes(speed) + '/s',
       downloadSpeedRaw: speed,
       numUnchoked: unchoked.length,
-      numPeers: wires.length,
+      numPeers: torrent.swarm.numPeers,
       downloaded: bytes(swarm.downloaded),
       downloadedRaw: swarm.downloaded,
       length: bytes(torrent.length),
